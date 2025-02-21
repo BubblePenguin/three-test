@@ -3,6 +3,15 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
+//Please dont judje me too hard, I'm just learning
+//It's almost first time doing 3D stuff
+//I know there is planty options for optimization and refactoring
+//But i had little to no time to learn as well as impliment test task
+//I'm pretty sure if i had at least week or smthn, id first learn more about 3D and then do this task
+//Two days ago i was pretty sure thats i'm not gonna be able to do this task
+//But i did it, and i'm proud of myself
+//I'm pretty sure i can do better, and i'm gonna do better
+
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
