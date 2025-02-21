@@ -37,7 +37,10 @@ new OrbitControls(camera, renderer.domElement);
 const planeData = {
   width: 4,
   depth: 4,
+  maxWidth: 9,
+  maxDepth: 9,
 };
+
 const cubeData = {
   width: 0.15,
   height: 2.2,
@@ -46,10 +49,13 @@ const cubeData = {
   thickness: 0.15,
   length: 2.2,
   gap: 0.001,
+
+  maxHeight: 4,
 };
 
 const houseData = {
   maxWidthBetweenPanels: 3,
+  maxIneerLodgeFrameDistance: 0.5,
 };
 
 const lodgeData = {
@@ -57,6 +63,17 @@ const lodgeData = {
   height: 0.2,
   innerDistance: 0.18,
   lowerLipDistance: 0.1,
+};
+
+const innerLodgeFrameData = {
+  thickness: 0.05,
+  height: lodgeData.height + lodgeData.lowerLipDistance - cubeData.thickness,
+};
+
+const flooringData = {
+  thickness: 0.002,
+  width: 0.2,
+  minGap: 0.1,
 };
 
 const defaultMesh = new THREE.MeshNormalMaterial();
@@ -77,6 +94,9 @@ const additionalXBalks: THREE.Mesh<THREE.BoxGeometry>[] = [];
 const additionalYBalks: THREE.Mesh<THREE.BoxGeometry>[] = [];
 const lodgeFirstLip: THREE.Mesh<THREE.BoxGeometry>[] = [];
 const lodgeSecondLip: THREE.Mesh<THREE.BoxGeometry>[] = [];
+const innerLodgeFrame: THREE.Mesh<THREE.BoxGeometry>[] = [];
+const additionalInnerLodgeFrame: THREE.Mesh<THREE.BoxGeometry>[] = [];
+const flooring: THREE.Mesh<THREE.BoxGeometry>[] = [];
 
 // Initializations
 
@@ -286,11 +306,86 @@ const createLodgeLip = () => {
   }
 };
 
+const createInnerLodgeFrame = () => {
+  for (let i = 0; i < 4; i++) {
+    innerLodgeFrame.push(
+      new THREE.Mesh(
+        i < 2
+          ? new THREE.BoxGeometry(
+              innerLodgeFrameData.thickness,
+              planeData.depth + lodgeData.innerDistance * 2,
+              innerLodgeFrameData.height
+            )
+          : new THREE.BoxGeometry(
+              planeData.width -
+                cubeData.gap * 2 -
+                innerLodgeFrameData.thickness,
+              innerLodgeFrameData.thickness,
+              innerLodgeFrameData.height
+            ),
+
+        defaultMesh
+      )
+    );
+    plane.add(innerLodgeFrame[i]);
+  }
+  return innerLodgeFrame;
+};
+
+const createAdditionalLodgeFrame = () => {
+  const amount = Math.trunc(
+    (planeData.maxDepth - innerLodgeFrameData.thickness) /
+      houseData.maxIneerLodgeFrameDistance
+  );
+
+  for (let i = 0; i < amount - 1; i++) {
+    additionalInnerLodgeFrame.push(
+      new THREE.Mesh(
+        new THREE.BoxGeometry(
+          planeData.width - cubeData.gap * 2 - innerLodgeFrameData.thickness,
+          innerLodgeFrameData.thickness,
+          innerLodgeFrameData.height
+        ),
+
+        defaultMesh
+      )
+    );
+    // plane.add(additionalInnerLodgeFrame[i]);
+  }
+};
+
+const createFlooring = () => {
+  const maxAmount = Math.trunc(
+    (planeData.maxWidth +
+      lodgeData.innerDistance * 2 +
+      lodgeData.thickness * 2 +
+      cubeData.gap * 2) /
+      flooringData.width
+  );
+
+  for (let i = 0; i < maxAmount; i++) {
+    flooring.push(
+      new THREE.Mesh(
+        new THREE.BoxGeometry(
+          flooringData.width,
+          planeData.depth + lodgeData.innerDistance * 2 - cubeData.gap * 2,
+          flooringData.thickness
+        ),
+        defaultMesh
+      )
+    );
+    // plane.add(flooring[i]);
+  }
+};
+
 createHorizontalBalks();
 createVerticalBalks();
 createAdditionalXBalks();
 createAdditionalYBalks();
 createLodgeLip();
+createInnerLodgeFrame();
+createAdditionalLodgeFrame();
+createFlooring();
 
 scene.add(plane);
 
@@ -320,29 +415,30 @@ const balksPosition = () => {
 };
 
 const horizontalBalksPosition = () => {
-  //y balks
+  const height = cubeData.height + cubeData.thickness / 2 + cubeData.gap;
+
   horizontalBalks[0].position.set(
     0,
     planeData.depth / 2 - cubeData.thickness / 2,
-    cubeData.height + cubeData.thickness / 2 + cubeData.gap
+    height
   );
   horizontalBalks[1].position.set(
     0,
     -planeData.depth / 2 + cubeData.width / 2,
-    cubeData.height + cubeData.thickness / 2 + cubeData.gap
+    height
   );
 
   //x balks
   horizontalBalks[2].position.set(
     planeData.width / 2 - cubeData.thickness / 2,
     0,
-    cubeData.height + cubeData.thickness / 2 + cubeData.gap
+    height
   );
 
   horizontalBalks[3].position.set(
     -planeData.width / 2 + cubeData.thickness / 2,
     0,
-    cubeData.height + cubeData.thickness / 2 + cubeData.gap
+    height
   );
 };
 
@@ -476,6 +572,82 @@ const lodgeSecondLipPosition = () => {
   );
 };
 
+const innerLodgeFramePosition = () => {
+  const height =
+    cubeData.height + cubeData.thickness + innerLodgeFrameData.height / 2;
+
+  innerLodgeFrame[0].position.set(planeData.width / 2, 0, height);
+  innerLodgeFrame[1].position.set(-planeData.width / 2, 0, height);
+  innerLodgeFrame[2].position.set(0, planeData.depth / 2, height);
+  innerLodgeFrame[3].position.set(0, -planeData.depth / 2, height);
+};
+
+const additionalInnerLodgeFramePosition = () => {
+  additionalInnerLodgeFrame.map((c) => {
+    c.removeFromParent();
+  });
+
+  const renderAmount =
+    Math.trunc(
+      (planeData.depth - innerLodgeFrameData.thickness) /
+        houseData.maxIneerLodgeFrameDistance
+    ) - 1;
+
+  const height =
+    cubeData.height + cubeData.thickness + innerLodgeFrameData.height / 2;
+
+  for (let i = 0; i < renderAmount; i++) {
+    additionalInnerLodgeFrame[i].position.set(
+      0,
+      planeData.depth / 2 -
+        cubeData.thickness / 2 -
+        ((planeData.depth - innerLodgeFrameData.thickness) / renderAmount) *
+          (i + 1),
+      height
+    );
+    plane.add(additionalInnerLodgeFrame[i]);
+  }
+};
+
+const flooringPosition = () => {
+  flooring.map((c) => {
+    c.parent && c.removeFromParent();
+  });
+
+  const amount = Math.trunc(
+    (planeData.width +
+      lodgeData.innerDistance * 2 +
+      lodgeData.thickness * 2 +
+      cubeData.gap * 2) /
+      flooringData.width
+  );
+
+  const height =
+    cubeData.height +
+    cubeData.thickness +
+    innerLodgeFrameData.height +
+    flooringData.thickness / 2;
+
+  for (let i = 0; i < amount; i++) {
+    flooring[i].position.set(
+      ((planeData.width +
+        lodgeData.innerDistance * 2 +
+        lodgeData.thickness * 2 +
+        cubeData.gap * 2) /
+        amount) *
+        (i + 1) -
+        planeData.width / 2 -
+        lodgeData.innerDistance -
+        lodgeData.thickness -
+        cubeData.gap * 2 -
+        flooringData.width / 2,
+      0,
+      height
+    );
+    plane.add(flooring[i]);
+  }
+};
+
 // Regenerations
 
 function regeneratePlaneGeometry() {
@@ -542,6 +714,48 @@ function regeneratePlaneGeometry() {
     });
   }
 
+  if (innerLodgeFrame.length > 0) {
+    innerLodgeFrame.map((c, i) => {
+      c.geometry.dispose();
+      c.geometry =
+        i < 2
+          ? new THREE.BoxGeometry(
+              innerLodgeFrameData.thickness,
+              planeData.depth + lodgeData.innerDistance * 2,
+              innerLodgeFrameData.height
+            )
+          : new THREE.BoxGeometry(
+              planeData.width -
+                cubeData.gap * 2 -
+                innerLodgeFrameData.thickness,
+              innerLodgeFrameData.thickness,
+              innerLodgeFrameData.height
+            );
+    });
+
+    if (additionalInnerLodgeFrame.length > 0) {
+      additionalInnerLodgeFrame.map((c) => {
+        c.geometry.dispose();
+        c.geometry = new THREE.BoxGeometry(
+          planeData.width - cubeData.gap * 2 - innerLodgeFrameData.thickness,
+          innerLodgeFrameData.thickness,
+          innerLodgeFrameData.height
+        );
+      });
+    }
+  }
+
+  if (flooring.length > 0) {
+    flooring.map((c) => {
+      c.geometry.dispose();
+      c.geometry = new THREE.BoxGeometry(
+        flooringData.width,
+        planeData.depth + lodgeData.innerDistance * 2 - cubeData.gap * 2,
+        flooringData.thickness
+      );
+    });
+  }
+
   plane.geometry.dispose();
   plane.geometry = newGeometry;
 }
@@ -581,24 +795,41 @@ function regenerateCubeGeometry() {
   }
 }
 
-// GUI
-
-const House = gui.addFolder("House");
-
-House.add(planeData, "width", 2, 9).onChange(regeneratePlaneGeometry);
-House.add(planeData, "depth", 2, 9).onChange(regeneratePlaneGeometry);
-House.add(cubeData, "height", 2, 4).onChange(regenerateCubeGeometry);
-
-function animate() {
-  requestAnimationFrame(animate);
-  camera.lookAt(0, cubeData.height / 2, 0);
-
+function regenerateAllPositions() {
   balksPosition();
   horizontalBalksPosition();
   additionalXBalksPosition();
   additionalYBalksPosition();
   lodgeFirstLipPosition();
   lodgeSecondLipPosition();
+  innerLodgeFramePosition();
+  additionalInnerLodgeFramePosition();
+  flooringPosition();
+}
+
+regenerateAllPositions();
+
+// GUI
+
+const House = gui.addFolder("House");
+
+House.add(planeData, "width", 2, planeData.maxWidth).onChange(() => {
+  regeneratePlaneGeometry();
+  regenerateAllPositions();
+});
+House.add(planeData, "depth", 2, planeData.maxDepth).onChange(() => {
+  regeneratePlaneGeometry();
+
+  regenerateAllPositions();
+});
+House.add(cubeData, "height", 2, cubeData.maxHeight).onChange(() => {
+  regenerateAllPositions();
+  regenerateCubeGeometry();
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  camera.lookAt(0, cubeData.height / 2, 0);
 
   renderer.render(scene, camera);
 }
