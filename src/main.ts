@@ -18,7 +18,7 @@ camera.lookAt(0, 0, 0);
 
 const gui = new GUI();
 
-scene.add(new THREE.AxesHelper(1));
+// scene.add(new THREE.AxesHelper(1));
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
