@@ -12,6 +12,8 @@ import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 //But i did it, and i'm proud of myself
 //I'm pretty sure i can do better, and i'm gonna do better
 
+// Most of later code is better than first part, at least i think so
+
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
@@ -212,6 +214,7 @@ const createAdditionalXBalks = () => {
     plane.add(additionalXBalks[i + i + 1]);
   }
 };
+
 const createAdditionalYBalks = () => {
   // const additionalXBalks: THREE.Mesh<THREE.BoxGeometry>[] = [];
 
@@ -257,6 +260,7 @@ const createAdditionalYBalks = () => {
     plane.add(additionalYBalks[i * 2 + 1]);
   }
 };
+
 const createLodgeLip = () => {
   for (let i = 0; i < 2; i++) {
     lodgeFirstLip.push(
@@ -816,7 +820,6 @@ House.add(planeData, "width", 2, planeData.maxWidth).onChange(() => {
 });
 House.add(planeData, "depth", 2, planeData.maxDepth).onChange(() => {
   regeneratePlaneGeometry();
-
   regenerateAllPositions();
 });
 House.add(cubeData, "height", 2, cubeData.maxHeight).onChange(() => {
