@@ -161,7 +161,7 @@ const createHorizontalBalks = () => {
 const createAdditionalXBalks = () => {
   // const additionalXBalks: THREE.Mesh<THREE.BoxGeometry>[] = [];
 
-  const xBalks = planeData.width / houseData.maxWidthBetweenPanels;
+  const xBalks = planeData.maxWidth / houseData.maxWidthBetweenPanels;
 
   for (let i = 0; i < xBalks; i++) {
     additionalXBalks.push(
@@ -206,7 +206,7 @@ const createAdditionalXBalks = () => {
 const createAdditionalYBalks = () => {
   // const additionalXBalks: THREE.Mesh<THREE.BoxGeometry>[] = [];
 
-  const yBalks = planeData.depth / houseData.maxWidthBetweenPanels;
+  const yBalks = planeData.maxDepth / houseData.maxWidthBetweenPanels;
 
   for (let i = 0; i < yBalks; i++) {
     additionalYBalks.push(
