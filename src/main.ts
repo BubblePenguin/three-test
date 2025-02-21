@@ -35,8 +35,8 @@ new OrbitControls(camera, renderer.domElement);
 // Datasets
 
 const planeData = {
-  width: 4,
-  depth: 4,
+  width: 6.1,
+  depth: 3,
   maxWidth: 9,
   maxDepth: 9,
 };
