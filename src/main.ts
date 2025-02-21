@@ -387,6 +387,8 @@ const createFlooring = () => {
   }
 };
 
+//Initializations execution
+
 createHorizontalBalks();
 createVerticalBalks();
 createAdditionalXBalks();
@@ -657,7 +659,7 @@ const flooringPosition = () => {
   }
 };
 
-// Regenerations
+// Regenerations on Change
 
 function regeneratePlaneGeometry() {
   const newGeometry = new THREE.PlaneGeometry(planeData.width, planeData.depth);
@@ -769,39 +771,23 @@ function regeneratePlaneGeometry() {
   plane.geometry = newGeometry;
 }
 
+function regenerateVertical(arr: THREE.Mesh<THREE.BoxGeometry>[]) {
+  if (arr.length > 0) {
+    arr.map((cube) => {
+      cube.geometry.dispose();
+      cube.geometry = new THREE.BoxGeometry(
+        cubeData.thickness,
+        cubeData.thickness,
+        cubeData.height
+      );
+    });
+  }
+}
+
 function regenerateCubeGeometry() {
-  if (balks.length > 0) {
-    balks.map((cube) => {
-      cube.geometry.dispose();
-      cube.geometry = new THREE.BoxGeometry(
-        cubeData.thickness,
-        cubeData.thickness,
-        cubeData.height
-      );
-    });
-  }
-
-  if (additionalXBalks.length > 0) {
-    additionalXBalks.map((cube) => {
-      cube.geometry.dispose();
-      cube.geometry = new THREE.BoxGeometry(
-        cubeData.thickness,
-        cubeData.thickness,
-        cubeData.height
-      );
-    });
-  }
-
-  if (additionalYBalks.length > 0) {
-    additionalYBalks.map((cube) => {
-      cube.geometry.dispose();
-      cube.geometry = new THREE.BoxGeometry(
-        cubeData.thickness,
-        cubeData.thickness,
-        cubeData.height
-      );
-    });
-  }
+  regenerateVertical(balks);
+  regenerateVertical(additionalXBalks);
+  regenerateVertical(additionalYBalks);
 }
 
 function regenerateAllPositions() {
@@ -814,6 +800,8 @@ function regenerateAllPositions() {
   innerLodgeFramePosition();
   additionalInnerLodgeFramePosition();
   flooringPosition();
+
+  camera.lookAt(0, cubeData.height / 2, 0);
 }
 
 regenerateAllPositions();
@@ -838,7 +826,6 @@ House.add(cubeData, "height", 2, cubeData.maxHeight).onChange(() => {
 
 function animate() {
   requestAnimationFrame(animate);
-  camera.lookAt(0, cubeData.height / 2, 0);
 
   renderer.render(scene, camera);
 }
