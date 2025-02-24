@@ -14,6 +14,11 @@ import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
 // Most of later code is better than first part, at least i think so
 
+//One of the "Better implementations" is to create function for make a duplicate of an object with a paramaters
+//Which would return function that regenerate geometry as well as position of this item
+//As arguments it should take coords and sizes of object plus axis of miroring
+//Same idea can be used to func that should create array of same structures for example flooring
+
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
@@ -381,7 +386,10 @@ const createFlooring = () => {
       new THREE.Mesh(
         new THREE.BoxGeometry(
           flooringData.width,
-          planeData.depth + lodgeData.innerDistance * 2 - cubeData.gap * 2,
+          planeData.depth +
+            lodgeData.innerDistance * 2 -
+            cubeData.gap * 2 +
+            lodgeData.thickness * 2,
           flooringData.thickness
         ),
         defaultMesh
@@ -765,7 +773,10 @@ function regeneratePlaneGeometry() {
       c.geometry.dispose();
       c.geometry = new THREE.BoxGeometry(
         flooringData.width,
-        planeData.depth + lodgeData.innerDistance * 2 - cubeData.gap * 2,
+        planeData.depth +
+          lodgeData.innerDistance * 2 -
+          cubeData.gap * 2 +
+          lodgeData.thickness * 2,
         flooringData.thickness
       );
     });
