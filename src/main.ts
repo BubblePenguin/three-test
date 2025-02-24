@@ -12,7 +12,7 @@ import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 //But i did it, and i'm proud of myself
 //I'm pretty sure i can do better, and i'm gonna do better
 
-// Most of later code is better than first part, at least i think so
+// Most of later code is better
 
 const scene = new THREE.Scene();
 
@@ -454,11 +454,6 @@ const createFlooring = () => {
 
 //Initializations
 {
-  createAdditionalXBalks();
-  createAdditionalYBalks();
-  createAdditionalLodgeFrame();
-  createFlooring();
-
   {
     createBlock(plane, {
       Sizes: () => ({
@@ -650,6 +645,11 @@ const createFlooring = () => {
       axis: "x",
     });
   }
+
+  createAdditionalXBalks();
+  createAdditionalYBalks();
+  createAdditionalLodgeFrame();
+  createFlooring();
 
   scene.add(plane);
 }
