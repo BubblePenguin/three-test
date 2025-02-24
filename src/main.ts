@@ -200,6 +200,12 @@ const createAdditionalXBalks = () => {
 
     additionalXBalks.map((balk) => {
       balk.removeFromParent();
+      balk.geometry.dispose();
+      balk.geometry = new THREE.BoxGeometry(
+        cubeData.thickness,
+        cubeData.thickness,
+        cubeData.height
+      );
     });
 
     for (let i = 0; i < xBalks - 1; i++) {
@@ -276,6 +282,12 @@ const createAdditionalYBalks = () => {
 
     additionalYBalks.map((balk) => {
       balk.removeFromParent();
+      balk.geometry.dispose();
+      balk.geometry = new THREE.BoxGeometry(
+        cubeData.thickness,
+        cubeData.thickness,
+        cubeData.height
+      );
     });
 
     for (let i = 0; i < yBalks - 1; i++) {
@@ -327,6 +339,12 @@ const createAdditionalLodgeFrame = () => {
   const regenerate = () => {
     additionalInnerLodgeFrame.map((c) => {
       c.removeFromParent();
+      c.geometry.dispose();
+      c.geometry = new THREE.BoxGeometry(
+        planeData.width - cubeData.gap * 2 - innerLodgeFrameData.thickness,
+        innerLodgeFrameData.thickness,
+        innerLodgeFrameData.height
+      );
     });
 
     const renderAmount =
@@ -384,6 +402,15 @@ const createFlooring = () => {
   const regenerate = () => {
     flooring.map((c) => {
       c.parent && c.removeFromParent();
+      c.geometry.dispose();
+      c.geometry = new THREE.BoxGeometry(
+        flooringData.width,
+        planeData.depth +
+          houseData.lipInnerDistance * 2 -
+          cubeData.gap * 2 +
+          lodgeData.thickness * 2,
+        flooringData.thickness
+      );
     });
 
     const amount = Math.trunc(
@@ -626,6 +653,7 @@ const createFlooring = () => {
 
   scene.add(plane);
 }
+
 // Regenerations on Change
 
 function regeneratePlaneGeometry() {
