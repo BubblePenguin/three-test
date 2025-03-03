@@ -108,7 +108,16 @@ interface CoordData {
 interface Paramaters {
   Sizes: () => CoordData;
   Position: () => CoordData;
-  axis: "x" | "y" | "z";
+  axis: "x" | "y";
+}
+interface ArrParamaters {
+  Sizes: () => CoordData;
+  Offset: () => CoordData;
+  Length: () => number;
+  maxLength: number;
+  trim?: boolean;
+  gap: number;
+  axis: "x" | "y";
 }
 
 const createBlock = (parent: THREE.Object3D, paramaters: Paramaters) => {
@@ -150,506 +159,390 @@ const createBlock = (parent: THREE.Object3D, paramaters: Paramaters) => {
   regenerationsArr.push(regenerate);
 };
 
-const createAdditionalXBalks = () => {
-  const additionalXBalks: THREE.Mesh<THREE.BoxGeometry>[] = [];
+const createArr = (parent: THREE.Object3D, paramaters: ArrParamaters) => {
+  const { Sizes, axis, Offset, maxLength, trim, gap, Length } = paramaters;
+  const sizes = Sizes();
 
-  const xBalks = planeData.maxWidth / houseData.maxWidthBetweenPanels;
+  const arr: THREE.Mesh<THREE.BoxGeometry>[] = [];
 
-  for (let i = 0; i < xBalks; i++) {
-    additionalXBalks.push(
-      new THREE.Mesh(
-        new THREE.BoxGeometry(
-          cubeData.thickness,
-          cubeData.thickness,
-          cubeData.height
-        ),
-        defaultMesh
-      )
-    );
-    additionalXBalks[i + i].position.set(
-      -planeData.width / 2 -
-        cubeData.thickness / 2 +
-        (planeData.width / Math.trunc(xBalks)) * (i + 1),
-      planeData.depth / 2 - cubeData.thickness / 2,
-      cubeData.height / 2
-    );
-    // plane.add(additionalXBalks[i + i]);
-
-    additionalXBalks.push(
-      new THREE.Mesh(
-        new THREE.BoxGeometry(
-          cubeData.thickness,
-          cubeData.thickness,
-          cubeData.height
-        ),
-        defaultMesh
-      )
-    );
-    additionalXBalks[i + i + 1].position.set(
-      -planeData.width / 2 -
-        cubeData.thickness / 2 +
-        (planeData.width / Math.trunc(xBalks)) * (i + 1),
-      -planeData.depth / 2 + cubeData.thickness / 2,
-      cubeData.height / 2
-    );
-    // plane.add(additionalXBalks[i + i + 1]);
-  }
-
-  const regenerate = () => {
-    const xBalks = planeData.width / houseData.maxWidthBetweenPanels;
-
-    additionalXBalks.map((balk) => {
-      balk.removeFromParent();
-      balk.geometry.dispose();
-      balk.geometry = new THREE.BoxGeometry(
-        cubeData.thickness,
-        cubeData.thickness,
-        cubeData.height
-      );
-    });
-
-    for (let i = 0; i < xBalks - 1; i++) {
-      additionalXBalks[i + i].position.set(
-        -planeData.width / 2 -
-          cubeData.thickness / 2 +
-          (planeData.width / Math.trunc(xBalks)) * (i + 1),
-        planeData.depth / 2 - cubeData.thickness / 2,
-        cubeData.height / 2
-      );
-      plane.add(additionalXBalks[i + i]);
-
-      additionalXBalks[i + i + 1].position.set(
-        -planeData.width / 2 -
-          cubeData.thickness / 2 +
-          (planeData.width / Math.trunc(xBalks)) * (i + 1),
-        -planeData.depth / 2 + cubeData.thickness / 2,
-        cubeData.height / 2
-      );
-      plane.add(additionalXBalks[i + i + 1]);
-    }
-  };
-  regenerate();
-  regenerationsArr.push(regenerate);
-};
-
-const createAdditionalYBalks = () => {
-  const additionalYBalks: THREE.Mesh<THREE.BoxGeometry>[] = [];
-
-  const yBalks = planeData.maxDepth / houseData.maxWidthBetweenPanels;
-
-  for (let i = 0; i < yBalks; i++) {
-    additionalYBalks.push(
-      new THREE.Mesh(
-        new THREE.BoxGeometry(
-          cubeData.thickness,
-          cubeData.thickness,
-          cubeData.height
-        ),
-        defaultMesh
-      )
-    );
-    additionalYBalks[i * 2].position.set(
-      planeData.width / 2 - cubeData.thickness / 2,
-      -planeData.depth / 2 -
-        cubeData.thickness / 2 +
-        (planeData.depth / Math.trunc(yBalks)) * (i + 1),
-      cubeData.height / 2
-    );
-    // plane.add(additionalYBalks[i * 2]);
-
-    additionalYBalks.push(
-      new THREE.Mesh(
-        new THREE.BoxGeometry(
-          cubeData.thickness,
-          cubeData.thickness,
-          cubeData.height
-        ),
-        defaultMesh
-      )
-    );
-    additionalYBalks[i * 2 + 1].position.set(
-      -planeData.width / 2 + cubeData.thickness / 2,
-      -planeData.depth / 2 -
-        cubeData.thickness / 2 +
-        (planeData.depth / Math.trunc(yBalks)) * (i + 1),
-      cubeData.height / 2
-    );
-    // plane.add(additionalYBalks[i * 2 + 1]);
-  }
-
-  const regenerate = () => {
-    const yBalks = planeData.depth / houseData.maxWidthBetweenPanels;
-
-    additionalYBalks.map((balk) => {
-      balk.removeFromParent();
-      balk.geometry.dispose();
-      balk.geometry = new THREE.BoxGeometry(
-        cubeData.thickness,
-        cubeData.thickness,
-        cubeData.height
-      );
-    });
-
-    for (let i = 0; i < yBalks - 1; i++) {
-      additionalYBalks[i * 2].position.set(
-        planeData.width / 2 - cubeData.thickness / 2,
-        -planeData.depth / 2 -
-          cubeData.thickness / 2 +
-          (planeData.depth / Math.trunc(yBalks)) * (i + 1),
-        cubeData.height / 2
-      );
-      plane.add(additionalYBalks[i * 2]);
-
-      additionalYBalks[i * 2 + 1].position.set(
-        -planeData.width / 2 + cubeData.thickness / 2,
-        -planeData.depth / 2 -
-          cubeData.thickness / 2 +
-          (planeData.depth / Math.trunc(yBalks)) * (i + 1),
-        cubeData.height / 2
-      );
-      plane.add(additionalYBalks[i * 2 + 1]);
-    }
-  };
-  regenerate();
-  regenerationsArr.push(regenerate);
-};
-
-const createAdditionalLodgeFrame = () => {
-  const additionalInnerLodgeFrame: THREE.Mesh<THREE.BoxGeometry>[] = [];
-
-  const amount = Math.trunc(
-    (planeData.maxDepth - innerLodgeFrameData.thickness) /
-      houseData.maxIneerLodgeFrameDistance
-  );
-
-  for (let i = 0; i < amount - 1; i++) {
-    additionalInnerLodgeFrame.push(
-      new THREE.Mesh(
-        new THREE.BoxGeometry(
-          planeData.width - cubeData.gap * 2 - innerLodgeFrameData.thickness,
-          innerLodgeFrameData.thickness,
-          innerLodgeFrameData.height
-        ),
-
-        defaultMesh
-      )
-    );
-  }
-
-  const regenerate = () => {
-    additionalInnerLodgeFrame.map((c) => {
-      c.removeFromParent();
-      c.geometry.dispose();
-      c.geometry = new THREE.BoxGeometry(
-        planeData.width - cubeData.gap * 2 - innerLodgeFrameData.thickness,
-        innerLodgeFrameData.thickness,
-        innerLodgeFrameData.height
-      );
-    });
-
-    const renderAmount =
-      Math.trunc(
-        (planeData.depth - innerLodgeFrameData.thickness) /
-          houseData.maxIneerLodgeFrameDistance
-      ) - 1;
-
-    const height =
-      cubeData.height + cubeData.thickness + innerLodgeFrameData.height / 2;
-
-    for (let i = 0; i < renderAmount; i++) {
-      additionalInnerLodgeFrame[i].position.set(
-        0,
-        planeData.depth / 2 -
-          cubeData.thickness / 2 -
-          ((planeData.depth - innerLodgeFrameData.thickness) / renderAmount) *
-            (i + 1),
-        height
-      );
-      plane.add(additionalInnerLodgeFrame[i]);
-    }
-  };
-  regenerate();
-  regenerationsArr.push(regenerate);
-};
-
-const createFlooring = () => {
-  const flooring: THREE.Mesh<THREE.BoxGeometry>[] = [];
-
-  const maxAmount = Math.trunc(
-    (planeData.maxWidth +
-      houseData.lipInnerDistance * 2 +
-      lodgeData.thickness * 2 +
-      cubeData.gap * 2) /
-      flooringData.width
-  );
+  const maxAmount = maxLength / gap + 1;
 
   for (let i = 0; i < maxAmount; i++) {
-    flooring.push(
+    arr.push(
       new THREE.Mesh(
-        new THREE.BoxGeometry(
-          flooringData.width,
-          planeData.depth +
-            houseData.lipInnerDistance * 2 -
-            cubeData.gap * 2 +
-            lodgeData.thickness * 2,
-          flooringData.thickness
-        ),
+        new THREE.BoxGeometry(sizes.x, sizes.y, sizes.z),
         defaultMesh
       )
     );
   }
 
   const regenerate = () => {
-    flooring.map((c) => {
-      c.parent && c.removeFromParent();
-      c.geometry.dispose();
-      c.geometry = new THREE.BoxGeometry(
-        flooringData.width,
-        planeData.depth +
-          houseData.lipInnerDistance * 2 -
-          cubeData.gap * 2 +
-          lodgeData.thickness * 2,
-        flooringData.thickness
-      );
+    const sizes = Sizes();
+    const offset = Offset();
+    const length = Length();
+    const amount = length / gap;
+    // console.log(length, amount);
+
+    arr.map((balk) => {
+      balk.removeFromParent();
+      balk.geometry.dispose();
+      balk.geometry = new THREE.BoxGeometry(sizes.x, sizes.y, sizes.z);
     });
 
-    const amount = Math.trunc(
-      (planeData.width +
-        houseData.lipInnerDistance * 2 +
-        lodgeData.thickness * 2 +
-        cubeData.gap * 2) /
-        flooringData.width
-    );
-
-    const height =
-      cubeData.height +
-      cubeData.thickness +
-      innerLodgeFrameData.height +
-      flooringData.thickness / 2;
-
-    for (let i = 0; i < amount; i++) {
-      flooring[i].position.set(
-        ((planeData.width +
-          houseData.lipInnerDistance * 2 +
-          lodgeData.thickness * 2 +
-          cubeData.gap * 2) /
-          amount) *
-          (i + 1) -
-          planeData.width / 2 -
-          houseData.lipInnerDistance -
-          lodgeData.thickness -
-          cubeData.gap * 2 -
-          flooringData.width / 2,
-        0,
-        height
+    for (
+      let i = 0;
+      trim ? i < Math.trunc(amount) - 1 : i <= Math.trunc(amount);
+      i++
+    ) {
+      arr[i].position.set(
+        axis === "x"
+          ? offset.x + (length / Math.trunc(amount)) * (i + (trim ? 1 : 0))
+          : offset.x,
+        axis === "y"
+          ? offset.y + (length / Math.trunc(amount)) * (i + (trim ? 1 : 0))
+          : offset.y,
+        offset.z
       );
-      plane.add(flooring[i]);
+      parent.add(arr[i]);
     }
   };
-
   regenerate();
-
   regenerationsArr.push(regenerate);
 };
 
 //Initializations
 {
   {
-    createBlock(plane, {
-      Sizes: () => ({
-        x: cubeData.thickness,
-        y: cubeData.thickness,
-        z: cubeData.height,
-      }),
-      Position: () => ({
-        x: planeData.width / 2 - cubeData.thickness / 2,
-        y: planeData.depth / 2 - cubeData.thickness / 2,
-        z: cubeData.height / 2,
-      }),
-      axis: "x",
-    });
+    {
+      const params: Paramaters = {
+        Sizes: () => ({
+          x: cubeData.thickness,
+          y: cubeData.thickness,
+          z: cubeData.height,
+        }),
+        Position: () => ({
+          x: planeData.width / 2 - cubeData.thickness / 2,
+          y: planeData.depth / 2 - cubeData.thickness / 2,
+          z: cubeData.height / 2,
+        }),
+        axis: "x",
+      };
 
-    createBlock(plane, {
-      Sizes: () => ({
-        x: cubeData.thickness,
-        y: cubeData.thickness,
-        z: cubeData.height,
-      }),
-      Position: () => ({
-        x: -planeData.width / 2 + cubeData.thickness / 2,
-        y: planeData.depth / 2 - cubeData.thickness / 2,
-        z: cubeData.height / 2,
-      }),
-      axis: "x",
-    });
+      createBlock(plane, {
+        ...params,
+      });
+
+      createBlock(plane, {
+        ...params,
+        Position: () => ({
+          x: -planeData.width / 2 + cubeData.thickness / 2,
+          y: planeData.depth / 2 - cubeData.thickness / 2,
+          z: cubeData.height / 2,
+        }),
+      });
+    }
+    {
+      {
+        const params: ArrParamaters = {
+          Sizes: () => ({
+            x: cubeData.thickness,
+            y: cubeData.thickness,
+            z: cubeData.height,
+          }),
+          Offset: () => ({
+            x: -planeData.width / 2 - cubeData.thickness / 2,
+            y: planeData.depth / 2 - cubeData.thickness / 2,
+            z: cubeData.height / 2,
+          }),
+          Length: () => planeData.width,
+          trim: true,
+          maxLength: planeData.maxWidth,
+          gap: houseData.maxWidthBetweenPanels,
+          axis: "x",
+        };
+
+        createArr(plane, {
+          ...params,
+        });
+        createArr(plane, {
+          ...params,
+          Offset: () => ({
+            x: -planeData.width / 2 - cubeData.thickness / 2,
+            y: -planeData.depth / 2 + cubeData.thickness / 2,
+            z: cubeData.height / 2,
+          }),
+        });
+      }
+
+      {
+        const params: ArrParamaters = {
+          Sizes: () => ({
+            x: cubeData.thickness,
+            y: cubeData.thickness,
+            z: cubeData.height,
+          }),
+          Offset: () => ({
+            x: planeData.width / 2 - cubeData.thickness / 2,
+            y: -planeData.depth / 2 - cubeData.thickness / 2,
+            z: cubeData.height / 2,
+          }),
+          Length: () => planeData.depth,
+          trim: true,
+          maxLength:
+            (planeData.maxDepth - innerLodgeFrameData.thickness) /
+            houseData.maxIneerLodgeFrameDistance,
+          gap: houseData.maxWidthBetweenPanels,
+          axis: "y",
+        };
+
+        createArr(plane, {
+          ...params,
+        });
+        createArr(plane, {
+          ...params,
+          Offset: () => ({
+            x: -planeData.width / 2 + cubeData.thickness / 2,
+            y: -planeData.depth / 2 - cubeData.thickness / 2,
+            z: cubeData.height / 2,
+          }),
+        });
+      }
+    }
   }
-  {
-    createBlock(plane, {
-      Sizes: () => ({
-        x: planeData.width,
-        y: cubeData.thickness,
-        z: cubeData.thickness,
-      }),
-      Position: () => ({
-        x: 0,
-        y: planeData.depth / 2 - cubeData.thickness / 2,
-        z: cubeData.height + cubeData.thickness / 2 + cubeData.gap,
-      }),
-      axis: "x",
-    });
-
-    createBlock(plane, {
-      Sizes: () => ({
-        x: cubeData.thickness,
-        y: planeData.depth - cubeData.thickness * 2 - cubeData.gap * 2,
-        z: cubeData.thickness,
-      }),
-      Position: () => ({
-        x: planeData.width / 2 - cubeData.thickness / 2,
-        y: 0,
-        z: cubeData.height + cubeData.thickness / 2 + cubeData.gap,
-      }),
-      axis: "y",
-    });
-  }
 
   {
-    createBlock(plane, {
-      Sizes: () => ({
-        x:
+    {
+      createBlock(plane, {
+        Sizes: () => ({
+          x: planeData.width,
+          y: cubeData.thickness,
+          z: cubeData.thickness,
+        }),
+        Position: () => ({
+          x: 0,
+          y: planeData.depth / 2 - cubeData.thickness / 2,
+          z: cubeData.height + cubeData.thickness / 2 + cubeData.gap,
+        }),
+        axis: "x",
+      });
+
+      createBlock(plane, {
+        Sizes: () => ({
+          x: cubeData.thickness,
+          y: planeData.depth - cubeData.thickness * 2 - cubeData.gap * 2,
+          z: cubeData.thickness,
+        }),
+        Position: () => ({
+          x: planeData.width / 2 - cubeData.thickness / 2,
+          y: 0,
+          z: cubeData.height + cubeData.thickness / 2 + cubeData.gap,
+        }),
+        axis: "y",
+      });
+    }
+
+    {
+      createBlock(plane, {
+        Sizes: () => ({
+          x:
+            planeData.width +
+            lodgeData.thickness * 2 +
+            houseData.lipInnerDistance * 2,
+          y: lodgeData.thickness,
+          z: lodgeData.height,
+        }),
+        Position: () => ({
+          x: 0,
+          y:
+            planeData.depth / 2 +
+            lodgeData.thickness / 2 +
+            houseData.lipInnerDistance,
+          z:
+            cubeData.height +
+            lodgeData.height / 2 +
+            cubeData.gap +
+            houseData.lipHeight,
+        }),
+        axis: "x",
+      });
+
+      createBlock(plane, {
+        Sizes: () => ({
+          x: lodgeData.thickness,
+          y:
+            planeData.depth + houseData.lipInnerDistance * 2 - cubeData.gap * 2,
+          z: lodgeData.height,
+        }),
+        Position: () => ({
+          x:
+            planeData.width / 2 +
+            lodgeData.thickness / 2 +
+            houseData.lipInnerDistance,
+
+          y: 0,
+          z:
+            cubeData.height +
+            lodgeData.height / 2 +
+            cubeData.gap +
+            houseData.lipHeight,
+        }),
+        axis: "y",
+      });
+    }
+
+    {
+      createBlock(plane, {
+        Sizes: () => ({
+          x:
+            planeData.width +
+            lodgeData.thickness * 4 +
+            houseData.lipInnerDistance * 2,
+          y: lodgeData.thickness,
+          z: lodgeData.height,
+        }),
+        Position: () => ({
+          x: 0,
+          y:
+            planeData.depth / 2 +
+            lodgeData.thickness / 2 +
+            houseData.lipInnerDistance +
+            lodgeData.thickness,
+          z:
+            cubeData.height +
+            lodgeData.height / 2 +
+            cubeData.gap +
+            houseData.lipHeight * 2,
+        }),
+        axis: "x",
+      });
+
+      createBlock(plane, {
+        Sizes: () => ({
+          x: lodgeData.thickness,
+          y:
+            planeData.depth +
+            houseData.lipInnerDistance * 2 -
+            cubeData.gap * 2 +
+            lodgeData.thickness * 2,
+          z: lodgeData.height,
+        }),
+        Position: () => ({
+          x:
+            planeData.width / 2 +
+            lodgeData.thickness / 2 +
+            houseData.lipInnerDistance +
+            lodgeData.thickness,
+          y: 0,
+          z:
+            cubeData.height +
+            lodgeData.height / 2 +
+            cubeData.gap +
+            houseData.lipHeight * 2,
+        }),
+        axis: "y",
+      });
+    }
+
+    {
+      createBlock(plane, {
+        Sizes: () => ({
+          x: innerLodgeFrameData.thickness,
+          y: planeData.depth + houseData.lipInnerDistance * 2,
+          z: innerLodgeFrameData.height,
+        }),
+        Position: () => ({
+          x: planeData.width / 2,
+          y: 0,
+          z:
+            cubeData.height +
+            cubeData.thickness +
+            innerLodgeFrameData.height / 2,
+        }),
+        axis: "y",
+      });
+
+      createBlock(plane, {
+        Sizes: () => ({
+          x: planeData.width - cubeData.gap * 2 - innerLodgeFrameData.thickness,
+          y: innerLodgeFrameData.thickness,
+          z: innerLodgeFrameData.height,
+        }),
+        Position: () => ({
+          x: 0,
+          y: planeData.depth / 2,
+          z:
+            cubeData.height +
+            cubeData.thickness +
+            innerLodgeFrameData.height / 2,
+        }),
+        axis: "x",
+      });
+    }
+
+    {
+      createArr(plane, {
+        Sizes: () => ({
+          x: planeData.width - cubeData.gap * 2 - innerLodgeFrameData.thickness,
+          y: innerLodgeFrameData.thickness,
+          z: innerLodgeFrameData.height,
+        }),
+        Offset: () => ({
+          x: 0,
+          y: -planeData.depth / 2 - cubeData.thickness / 2,
+          z:
+            cubeData.height +
+            cubeData.thickness +
+            innerLodgeFrameData.height / 2,
+        }),
+        Length: () => planeData.depth,
+        trim: true,
+        maxLength: planeData.maxDepth,
+        gap: houseData.maxIneerLodgeFrameDistance,
+        axis: "y",
+      });
+    }
+    {
+      createArr(plane, {
+        Sizes: () => ({
+          x: flooringData.width,
+          y:
+            planeData.depth +
+            houseData.lipInnerDistance * 2 -
+            cubeData.gap * 2 +
+            lodgeData.thickness * 2,
+          z: flooringData.thickness,
+        }),
+        Offset: () => ({
+          x:
+            -planeData.width / 2 -
+            houseData.lipInnerDistance -
+            lodgeData.thickness -
+            cubeData.gap * 2 +
+            flooringData.width / 2,
+          y: 0,
+          z:
+            cubeData.height +
+            cubeData.thickness +
+            innerLodgeFrameData.height +
+            flooringData.thickness / 2,
+        }),
+        Length: () =>
           planeData.width +
+          houseData.lipInnerDistance * 2 +
           lodgeData.thickness * 2 +
-          houseData.lipInnerDistance * 2,
-        y: lodgeData.thickness,
-        z: lodgeData.height,
-      }),
-      Position: () => ({
-        x: 0,
-        y:
-          planeData.depth / 2 +
-          lodgeData.thickness / 2 +
-          houseData.lipInnerDistance,
-        z:
-          cubeData.height +
-          lodgeData.height / 2 +
-          cubeData.gap +
-          houseData.lipHeight,
-      }),
-      axis: "x",
-    });
-
-    createBlock(plane, {
-      Sizes: () => ({
-        x: lodgeData.thickness,
-        y: planeData.depth + houseData.lipInnerDistance * 2 - cubeData.gap * 2,
-        z: lodgeData.height,
-      }),
-      Position: () => ({
-        x:
-          planeData.width / 2 +
-          lodgeData.thickness / 2 +
-          houseData.lipInnerDistance,
-
-        y: 0,
-        z:
-          cubeData.height +
-          lodgeData.height / 2 +
-          cubeData.gap +
-          houseData.lipHeight,
-      }),
-      axis: "y",
-    });
+          cubeData.gap * 2 -
+          flooringData.width,
+        // trim: true,
+        maxLength:
+          planeData.maxWidth +
+          houseData.lipInnerDistance * 2 +
+          lodgeData.thickness * 2 +
+          cubeData.gap * 2,
+        gap: flooringData.width + 0.01,
+        axis: "x",
+      });
+    }
   }
-
-  {
-    createBlock(plane, {
-      Sizes: () => ({
-        x:
-          planeData.width +
-          lodgeData.thickness * 4 +
-          houseData.lipInnerDistance * 2,
-        y: lodgeData.thickness,
-        z: lodgeData.height,
-      }),
-      Position: () => ({
-        x: 0,
-        y:
-          planeData.depth / 2 +
-          lodgeData.thickness / 2 +
-          houseData.lipInnerDistance +
-          lodgeData.thickness,
-        z:
-          cubeData.height +
-          lodgeData.height / 2 +
-          cubeData.gap +
-          houseData.lipHeight * 2,
-      }),
-      axis: "x",
-    });
-
-    createBlock(plane, {
-      Sizes: () => ({
-        x: lodgeData.thickness,
-        y:
-          planeData.depth +
-          houseData.lipInnerDistance * 2 -
-          cubeData.gap * 2 +
-          lodgeData.thickness * 2,
-        z: lodgeData.height,
-      }),
-      Position: () => ({
-        x:
-          planeData.width / 2 +
-          lodgeData.thickness / 2 +
-          houseData.lipInnerDistance +
-          lodgeData.thickness,
-        y: 0,
-        z:
-          cubeData.height +
-          lodgeData.height / 2 +
-          cubeData.gap +
-          houseData.lipHeight * 2,
-      }),
-      axis: "y",
-    });
-  }
-
-  {
-    createBlock(plane, {
-      Sizes: () => ({
-        x: innerLodgeFrameData.thickness,
-        y: planeData.depth + houseData.lipInnerDistance * 2,
-        z: innerLodgeFrameData.height,
-      }),
-      Position: () => ({
-        x: planeData.width / 2,
-        y: 0,
-        z:
-          cubeData.height + cubeData.thickness + innerLodgeFrameData.height / 2,
-      }),
-      axis: "y",
-    });
-
-    createBlock(plane, {
-      Sizes: () => ({
-        x: planeData.width - cubeData.gap * 2 - innerLodgeFrameData.thickness,
-        y: innerLodgeFrameData.thickness,
-        z: innerLodgeFrameData.height,
-      }),
-      Position: () => ({
-        x: 0,
-        y: planeData.depth / 2,
-        z:
-          cubeData.height + cubeData.thickness + innerLodgeFrameData.height / 2,
-      }),
-      axis: "x",
-    });
-  }
-
-  createAdditionalXBalks();
-  createAdditionalYBalks();
-  createAdditionalLodgeFrame();
-  createFlooring();
 
   scene.add(plane);
 }
